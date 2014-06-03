@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+<style>
+   *       { margin:0; padding: 0;}
+   body    { padding: 20px; }
+   input   { width:500px; padding: 10px; }
+   ul      { margin:20px 0;}
+   ul li   { display: inline; padding: 10px; background: #004080; margin-right: 10px; color: #FFF; border-radius: 10px; }
+   ul li a { margin-left: 15px; color: #FFF; }
+</style>
+</head>
+<body>
+	<input type="text" id="autocomplete" />
+  <ul id="selected-places"></ul>
+  <input type="hidden" id="destination" />
+  <script src="jquery.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBWtUXY-Ia53sIG5IE9bHW5SOy8QF4zWEc&v=3.exp&sensor=false&libraries=places&types=(regions)"></script>
+	<script type="text/javascript">
+      PlaceField = function(seletor){
+        this.autocomplete = $('#autocomplete');
+        this.destination  = $('#destination');
+        this.placeList    = $('#selected-places');
+      };
+
+      PlaceField.prototype.Render = function(){
+        var placeField   = this;
+        var options           = { types: ['(cities)'] };
+        var autocompleteField = new google.maps.places.Autocomplete(this.autocomplete[0], options);
+
+        google.maps.event.addListener(autocompleteField, 'place_changed', function(e) {
+          var place = autocompleteField.getPlace();
+          placeField.Add(place);
+          setTimeout(function(){
+            placeField.autocomplete.val('');
+          }, 80);
+
+        });
+      };
+
+      PlaceField.prototype.Add = function (place){
+        var items = (this.destination.val() == '') ? [] : this.destination.val().split('#');
+        items.push(place.reference + "," + place.name);
+        this.destination.val(items.join('#'));
+        this.placeList.append('<li>' + place.name + '<a href="#">x</a> </li>');
+      };
+
+      PlaceField.prototype.Remove = function (item, e){
+        e.preventDefault();
+        e.stopPropagation();
+        var selectedItem = $(item).parent();
+        var items        = this.destination.val().split('#');
+        items.splice(selectedItem.index(), 1);
+        this.destination.val(items.join('#'));
+        selectedItem.remove();
+      };
+
+      PlaceField.Apply = function(){
+        var pf = new PlaceField();
+        pf.Render();
+        $(document).on('click', '#selected-places li a', function(e){ pf.Remove(this, e) });
+      };
+
+      $(function(){
+          PlaceField.Apply();
+      });
+	</script>
+</body>
+</html>
