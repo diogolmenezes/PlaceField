@@ -26,16 +26,17 @@
       };
 
       PlaceField.prototype.Render = function(){
-        var placeField   = this;
+        var placeField        = this;
         var options           = { types: ['(cities)'] };
         var autocompleteField = new google.maps.places.Autocomplete(this.autocomplete[0], options);
 
         google.maps.event.addListener(autocompleteField, 'place_changed', function(e) {
           var place = autocompleteField.getPlace();
           placeField.Add(place);
+
           setTimeout(function(){
             placeField.autocomplete.val('');
-          }, 80);
+          }, 180);
 
         });
       };
